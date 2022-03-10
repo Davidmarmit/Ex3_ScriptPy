@@ -11,6 +11,7 @@ GPIO.setmode(GPIO.BCM)
 # ultrasonic sensor pins:
 sensor_trig = 18
 sensor_echo = 24
+led_pin = 21
 # Led pin:
 led1 = LED(17)  # Todo si no t'agrada aquesta llibreria fes-ho amb GPIO i posa més leds si vols
 
@@ -43,6 +44,7 @@ def get_distance():
 
 def detect_people():
     dist = get_distance()
+    print(dist)
     if dist < 100:  # Todo es pot jugar amb la distancia per a que el led faci diferents coses
         start_flash()  # Todo si no funciona el flash fer led1.on()
         print("Detected an object at %.2f cm" % dist)
