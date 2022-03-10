@@ -4,6 +4,8 @@ import time
 from gpiozero import LED
 from picamera import PiCamera
 
+from bbddFirebase import upload_img, upload_video
+
 GPIO.setmode(GPIO.BCM)
 # Todo posa els pins que tu vulguis:
 # ultrasonic sensor pins:
@@ -71,6 +73,8 @@ def take_photo():
     camera.capture('/images/photo.jpg')
     camera.stop_preview()
 
+    upload_img("/images/photo.jpg", cont_img)
+
 
 def take_video():
     camera = PiCamera()
@@ -79,13 +83,16 @@ def take_video():
     time.sleep(5)
     camera.stop_recording()
     camera.stop_preview()
+    upload_video("/images/video.h264", cont_img)
 
 
 if __name__ == '__main__':
+    cont_img = 0
     try:
         while True:
             if detect_people():
                 take_photo()  # Todo decidir si volem video o foto i veure que funcionin els dos
+                cont_img += 1
                 take_video()
     # PINs final cleaning on interrupt
     except KeyboardInterrupt:  # Todo falta clean el led? no se com fer-ho
