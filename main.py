@@ -11,15 +11,15 @@ from PIL import Image
 from bbddFirebase import upload_img, upload_video
 
 GPIO.setmode(GPIO.BCM)
-# ultrasonic sensor pins:
 sensor_trig = 18
 sensor_echo = 24
-led_pin = 21
-# Led pin:
+buzzer = 23
+buzzState = False
 led1 = LED(17)
-
 GPIO.setup(sensor_trig, GPIO.OUT)
 GPIO.setup(sensor_echo, GPIO.IN)
+GPIO.setup(buzzer, GPIO.OUT)
+GPIO.setup(buzzer, buzzState)
 
 
 # It gets the distance between an object and the ultrasonic sensor
@@ -45,31 +45,24 @@ def get_distance():
     return distance
 
 
+def buzzerOnOff(buzzer):
+    GPIO.output(buzzer, True)
+    time.sleep(0.5)
+    GPIO.output(buzzer, False)
+
+
 def detect_people():
     dist = get_distance()
     print(dist)
-    if dist < 100:
-        start_flash()
+    if dist < 20:
         print("Detected an object at %.2f cm" % dist)
         return True
     else:
-        # led1.off()  # switches OFF the LED
         return False
 
 
-# Flashing 2 times a LED
-def start_flash():
-    flash_time = time.time()
-    led1.on()  # switches ON the LED
-    # Flashes the LED 2 times
-    while (time.time() - flash_time) < 300:
-        if time.time() - flash_time < 150:
-            led1.off()
-        if not led1.is_active:
-            led1.on()
-
-
 def take_photo():
+    led1.on()
     camera = PiCamera()
     camera.rotation = 180
     camera.start_preview(alpha=200)
@@ -77,6 +70,8 @@ def take_photo():
     time.sleep(5)
     camera.capture('/images/photo.jpg')
     camera.stop_preview()
+    led1.off()
+    buzzerOnOff(buzzer)
 
     upload_img("/images/photo.jpg", cont_img)
     return "/images/photo.jpg"
